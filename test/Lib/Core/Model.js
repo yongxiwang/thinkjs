@@ -21,7 +21,7 @@ var clearRequireCache = function(){
 describe('before', function(){
   it('before', function(){
     muk(MysqlSocket.prototype, 'query', function(sql){
-      if (sql === 'SHOW COLUMNS FROM `meinv_friend`') {
+      if (sql === 'SHOW COLUMNS FROM `think_friend`') {
         var data = [
           {"Field":"id","Type":"int(11) unsigned","Null":"NO","Key":"PRI","Default":null,"Extra":"auto_increment"},
           {"Field":"title","Type":"varchar(255)","Null":"NO","Key":"UNI","Default":null,"Extra":""},
@@ -29,7 +29,7 @@ describe('before', function(){
           {"Field":"cate_no","Type":"int(11)","Null":"YES","Key":"","Default":null,"Extra":""},
         ];
         return getPromise(data);
-      }else if (sql === 'SHOW COLUMNS FROM `meinv_cate`') {
+      }else if (sql === 'SHOW COLUMNS FROM `think_cate`') {
         var data = [
           {"Field":"id","Type":"int(11) unsigned","Null":"NO","Key":"","Default":null,"Extra":""},
           {"Field":"title","Type":"varchar(255)","Null":"NO","Key":"UNI","Default":null,"Extra":""},
@@ -37,7 +37,7 @@ describe('before', function(){
           {"Field":"cate_no","Type":"int(11)","Null":"YES","Key":"","Default":null,"Extra":""},
         ];
         return getPromise(data);
-      }else if (sql === 'SHOW COLUMNS FROM `meinv_tag`') {
+      }else if (sql === 'SHOW COLUMNS FROM `think_tag`') {
         var data = [
           {"Field":"wid","Type":"int(11) unsigned","Null":"NO","Key":"PRI","Default":null,"Extra":"auto_increment"},
           {"Field":"title","Type":"varchar(255)","Null":"NO","Key":"UNI","Default":null,"Extra":""},
@@ -45,7 +45,7 @@ describe('before', function(){
           {"Field":"cate_no","Type":"int(11)","Null":"YES","Key":"","Default":null,"Extra":""},
         ];
         return getPromise(data);
-      }else if (sql === 'SHOW COLUMNS FROM `meinv_user`') {
+      }else if (sql === 'SHOW COLUMNS FROM `think_user`') {
         var data = [
           {"Field":"wid","Type":"int(11) unsigned","Null":"NO","Key":"","Default":null,"Extra":""},
           {"Field":"title","Type":"varchar(255)","Null":"NO","Key":"UNI","Default":null,"Extra":""},
@@ -53,7 +53,7 @@ describe('before', function(){
           {"Field":"cate_no","Type":"int(11)","Null":"YES","Key":"","Default":null,"Extra":""},
         ];
         return getPromise(data);
-      }else if (sql === 'SHOW COLUMNS FROM `meinv_type`') {
+      }else if (sql === 'SHOW COLUMNS FROM `think_type`') {
         var data = [
           {"Field":"wid","Type":"int(11) unsigned","Null":"NO","Key":"","Default":null,"Extra":""},
           {"Field":"flo","Type":"float(255)","Null":"NO","Key":"UNI","Default":null,"Extra":""},
@@ -69,13 +69,13 @@ describe('before', function(){
           {"Field":"cate_no","Type":"int(11)","Null":"YES","Key":"","Default":null,"Extra":""},
         ];
         return getPromise(data);
-      }else if (sql.indexOf("SELECT * FROM `meinv_type` WHERE ( `flo` = 0 ) LIMIT 1") > -1) {
+      }else if (sql.indexOf("SELECT * FROM `think_type` WHERE ( `flo` = 0 ) LIMIT 1") > -1) {
         return getPromise([]);
-      }else if (sql.indexOf('SELECT COUNT(meinv_tag.wid) AS thinkjs_count FROM `meinv_tag` LIMIT 1') > -1) {
+      }else if (sql.indexOf('SELECT COUNT(think_tag.wid) AS thinkjs_count FROM `think_tag` LIMIT 1') > -1) {
         return getPromise([{
           thinkjs_count: 100
         }])
-      }else if (sql.indexOf("SELECT `wid` FROM `meinv_group` LIMIT 2")> -1) {
+      }else if (sql.indexOf("SELECT `wid` FROM `think_group` LIMIT 2")> -1) {
         return getPromise([
           {"id":7565,"title":"米兰达·可儿干练服装写真大片","cate_id":1,"cate_no":0},
           {"id":7564,"title":"[Beautyleg]2014.05.21 No.977 Cindy","cate_id":2,"cate_no":977}
@@ -97,7 +97,7 @@ describe('before', function(){
   })
 });
 describe('Model', function(){
-  C('db_prefix', 'meinv_');
+  C('db_prefix', 'think_');
   var model = D('Group');
 
   describe('init', function(){
@@ -110,9 +110,9 @@ describe('Model', function(){
       assert.equal(model.tablePrefix, 'test_');
     })
     it('prototype tablePrefix is set', function(){
-      thinkRequire('Model').__prop.tablePrefix = 'meinv_';
+      thinkRequire('Model').__prop.tablePrefix = 'think_';
       var model = D('Group');
-      assert.equal(model.tablePrefix, 'meinv_');
+      assert.equal(model.tablePrefix, 'think_');
     })
   })
 
@@ -143,8 +143,8 @@ describe('Model', function(){
 
   describe('getTableName', function(){
     it('getTableName', function(){
-      assert.equal(model.getTableName(), 'meinv_group');
-      assert.equal(model.getTableName(), 'meinv_group');
+      assert.equal(model.getTableName(), 'think_group');
+      assert.equal(model.getTableName(), 'think_group');
     })
     it('getTableName 1', function(){
       var model = D('Group');
@@ -243,14 +243,18 @@ describe('Model', function(){
     })
     it('getUniqueField1', function(){
       var unique = model.getUniqueField({});
-      assert.equal(unique, '')
+      assert.equal(unique, undefined)
+    })
+    it('getUniqueField with data', function(){
+      var unique = model.getUniqueField({title: 1});
+      assert.equal(unique, 'title')
     })
   })
 
   describe('getLastSql', function(){
     it('getLastSql', function(done){
       var sql = model.getLastSql();
-      assert.equal(sql, 'SHOW COLUMNS FROM `meinv_tag`');
+      assert.equal(sql, 'SHOW COLUMNS FROM `think_tag`');
       done();
     })
   })
@@ -434,10 +438,10 @@ describe('Model', function(){
     it('table', function(){
       var model = D('tag');
       model.table('welefen');
-      assert.equal(model._options.table, 'meinv_welefen');
+      assert.equal(model._options.table, 'think_welefen');
     })
     it('table with prefix', function(){
-      C('db_prefix', 'meinv_')
+      C('db_prefix', 'think_')
       var model = D('tag');
       model.table('welefen', true);
       assert.equal(model._options.table, 'welefen');
@@ -495,26 +499,26 @@ describe('Model', function(){
   describe('buildSql', function(){
     it('buildSql', function(done){
       D('Tag').buildSql().then(function(sql){
-        assert.equal(sql, '( SELECT * FROM `meinv_tag` )');
+        assert.equal(sql, '( SELECT * FROM `think_tag` )');
         done();
       })
     })
     it('buildSql 1', function(done){
       D('Group').buildSql().then(function(sql){
-        assert.equal(sql, '( SELECT * FROM `meinv_group` )');
+        assert.equal(sql, '( SELECT * FROM `think_group` )');
         done();
       })
     })
     it('buildSql with where', function(done){
       D('Group').where({title: 'welefen'}).buildSql().then(function(sql){
-        assert.equal(sql, "( SELECT * FROM `meinv_group` WHERE ( `title` = 'welefen' ) )");
+        assert.equal(sql, "( SELECT * FROM `think_group` WHERE ( `title` = 'welefen' ) )");
         done();
       })
     })
     it('buildSql with where 2', function(done){
       D('Group').where({title: "welefen'suredy"}).buildSql().then(function(sql){
         //console.log(sql)
-        assert.equal(sql, "( SELECT * FROM `meinv_group` WHERE ( `title` = 'welefen\\'suredy' ) )");
+        assert.equal(sql, "( SELECT * FROM `think_group` WHERE ( `title` = 'welefen\\'suredy' ) )");
         done();
       })
     })
@@ -523,42 +527,42 @@ describe('Model', function(){
   describe('parseOptions', function(){
     it('empty options', function(done){
       D('Tag').parseOptions().then(function(options){
-        assert.deepEqual(options, { table: 'meinv_tag', tablePrefix: 'meinv_', model: 'Tag' })
+        assert.deepEqual(options, { table: 'think_tag', tablePrefix: 'think_', model: 'Tag' })
         done();
       })
     })
     it('table', function(done){
       D('Tag').table('welefen').parseOptions().then(function(options){
         //console.log(options)
-        assert.deepEqual(options, { table: 'meinv_welefen', tablePrefix: 'meinv_', model: 'Tag' })
+        assert.deepEqual(options, { table: 'think_welefen', tablePrefix: 'think_', model: 'Tag' })
         done();
       })
     })
     it('table alias', function(done){
       D('Tag').alias('a').parseOptions().then(function(options){
         //console.log(options)
-        assert.deepEqual(options,{"alias":"a","table":"meinv_tag AS a","tablePrefix":"meinv_","model":"Tag"})
+        assert.deepEqual(options,{"alias":"a","table":"think_tag AS a","tablePrefix":"think_","model":"Tag"})
         done();
       })
     })
     it('with where', function(done){
       D('Tag').where({title: 'welefen'}).parseOptions().then(function(options){
         //console.log(options)
-        assert.deepEqual(options, {"where":{"title":"welefen"},"table":"meinv_tag","tablePrefix":"meinv_","model":"Tag"})
+        assert.deepEqual(options, {"where":{"title":"welefen"},"table":"think_tag","tablePrefix":"think_","model":"Tag"})
         done();
       })
     })
     it('with where', function(done){
       D('Tag').where({title: 'welefen'}).parseOptions().then(function(options){
         //console.log(options)
-        assert.deepEqual(options, {"where":{"title":"welefen"},"table":"meinv_tag","tablePrefix":"meinv_","model":"Tag"})
+        assert.deepEqual(options, {"where":{"title":"welefen"},"table":"think_tag","tablePrefix":"think_","model":"Tag"})
         done();
       })
     })
     it('with where', function(done){
       D('Tag').where({title: ['welefen']}).parseOptions().then(function(options){
         //console.log(options)
-        assert.deepEqual(options, {"where":{"title":["welefen"]},"table":"meinv_tag","tablePrefix":"meinv_","model":"Tag"})
+        assert.deepEqual(options, {"where":{"title":["welefen"]},"table":"think_tag","tablePrefix":"think_","model":"Tag"})
         done();
       })
     })
@@ -570,14 +574,14 @@ describe('Model', function(){
     })
     it('with where, user defined', function(done){
       D('Tag').where({_string: 'welefen'}).parseOptions().then(function(options){
-        assert.deepEqual(options, {"where":{"_string":"welefen"},"table":"meinv_tag","tablePrefix":"meinv_","model":"Tag"})
+        assert.deepEqual(options, {"where":{"_string":"welefen"},"table":"think_tag","tablePrefix":"think_","model":"Tag"})
         done();
       })
     })
     it('with field reverse', function(done){
       var model = D('Tag');
       model.field('title', true).parseOptions().then(function(options){
-        assert.deepEqual(options, {"field":"wid,cate_id,cate_no","fieldReverse":false,"table":"meinv_tag","tablePrefix":"meinv_","model":"Tag"});
+        assert.deepEqual(options, {"field":"wid,cate_id,cate_no","fieldReverse":false,"table":"think_tag","tablePrefix":"think_","model":"Tag"});
         assert.deepEqual(model._options, {})
         done();
       })
@@ -586,7 +590,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.field('title', true).parseOptions(100).then(function(options){
         //console.log(options)
-        assert.deepEqual(options, {"field":"wid,cate_id,cate_no","fieldReverse":false,"table":"meinv_tag","tablePrefix":"meinv_","model":"Tag","where":{"wid":100}});
+        assert.deepEqual(options, {"field":"wid,cate_id,cate_no","fieldReverse":false,"table":"think_tag","tablePrefix":"think_","model":"Tag","where":{"wid":100}});
         assert.deepEqual(model._options, {})
         done();
       })
@@ -748,14 +752,14 @@ describe('Model', function(){
     it('add data', function(done){
       var model = D('Tag');
       model.add({title: 'xxx'}).then(function(data){
-        assert.equal(model.getLastSql(), "INSERT INTO `meinv_tag` (`title`) VALUES('xxx')")
+        assert.equal(model.getLastSql(), "INSERT INTO `think_tag` (`title`) VALUES('xxx')")
         done();
       })
     })
     it('replace data', function(done){
       var model = D('Tag');
       model.where({wid: 1}).add({title: 'xxx'}, true).then(function(data){
-        assert.equal(model.getLastSql(), "REPLACE INTO `meinv_tag` (`title`) VALUES('xxx')")
+        assert.equal(model.getLastSql(), "REPLACE INTO `think_tag` (`title`) VALUES('xxx')")
         done();
       })
     })
@@ -764,14 +768,14 @@ describe('Model', function(){
     it('thenAdd', function(done){
       var model = D('Tag');
       model.thenAdd({title: 'xxxx'}, {title: 'xxxx'}).then(function(data){
-        assert.equal(model.getLastSql().trim(), "SELECT * FROM `meinv_tag` WHERE ( `title` = 'xxxx' ) LIMIT 1")
+        assert.equal(model.getLastSql().trim(), "SELECT * FROM `think_tag` WHERE ( `title` = 'xxxx' ) LIMIT 1")
         done();
       })
     })
     it('thenAdd true', function(done){
       var model = D('Tag');
       model.thenAdd({title: 'xxxx'}, {title: 'xxxx'}, true).then(function(data){
-        assert.equal(model.getLastSql().trim(), "SELECT * FROM `meinv_tag` WHERE ( `title` = 'xxxx' ) LIMIT 1");
+        assert.equal(model.getLastSql().trim(), "SELECT * FROM `think_tag` WHERE ( `title` = 'xxxx' ) LIMIT 1");
         assert.deepEqual(data, { id: undefined, type: 'exist' })
         done();
       })
@@ -779,7 +783,7 @@ describe('Model', function(){
     it('thenAdd true', function(done){
       var model = D('Tag');
       model.where({title: 'xxxx'}).thenAdd({title: 'xxxx'}, true).then(function(data){
-        assert.equal(model.getLastSql().trim(), "SELECT * FROM `meinv_tag` WHERE ( `title` = 'xxxx' ) LIMIT 1");
+        assert.equal(model.getLastSql().trim(), "SELECT * FROM `think_tag` WHERE ( `title` = 'xxxx' ) LIMIT 1");
         assert.deepEqual(data, { id: undefined, type: 'exist' })
         done();
       })
@@ -788,7 +792,7 @@ describe('Model', function(){
       var model = D('Type');
       model.where({flo: 'xxxx'}).thenAdd({flo: 'xxxx'}, true).then(function(data){
         //console.log(model.getLastSql())
-        assert.equal(model.getLastSql().trim(), "INSERT INTO `meinv_type` (`flo`) VALUES(0)");
+        assert.equal(model.getLastSql().trim(), "INSERT INTO `think_type` (`flo`) VALUES(0)");
         assert.deepEqual(data, { id: 0, type: 'add' })
         done();
       }).catch(function(err){
@@ -799,7 +803,7 @@ describe('Model', function(){
       var model = D('Type');
       model.where({flo: 'xxxx'}).thenAdd({flo: 'xxxx'}).then(function(data){
         //console.log(model.getLastSql())
-        assert.equal(model.getLastSql().trim(), "INSERT INTO `meinv_type` (`flo`) VALUES(0)");
+        assert.equal(model.getLastSql().trim(), "INSERT INTO `think_type` (`flo`) VALUES(0)");
         assert.deepEqual(data, 0)
         done();
       }).catch(function(err){
@@ -823,7 +827,7 @@ describe('Model', function(){
     it('add single data', function(done){
       var model = D('Tag');
       model.addAll([{title: 'xxx'}]).then(function(data){
-        assert.equal(model.getLastSql().trim(), "INSERT INTO `meinv_tag`(`title`) VALUES ('xxx')")
+        assert.equal(model.getLastSql().trim(), "INSERT INTO `think_tag`(`title`) VALUES ('xxx')")
         done();
       })
     })
@@ -831,7 +835,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.addAll([{title: 'xxx'}, {title: 'yyy'}]).then(function(data){
         //console.log(model.getLastSql())
-        assert.equal(model.getLastSql().trim(), "INSERT INTO `meinv_tag`(`title`) VALUES ('xxx'),('yyy')")
+        assert.equal(model.getLastSql().trim(), "INSERT INTO `think_tag`(`title`) VALUES ('xxx'),('yyy')")
         done();
       })
     })
@@ -839,7 +843,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.addAll([{title: 'xxx'}, {title: 'yyy'}], true).then(function(data){
         //console.log(model.getLastSql())
-        assert.equal(model.getLastSql().trim(), "REPLACE INTO `meinv_tag`(`title`) VALUES ('xxx'),('yyy')")
+        assert.equal(model.getLastSql().trim(), "REPLACE INTO `think_tag`(`title`) VALUES ('xxx'),('yyy')")
         done();
       })
     })
@@ -853,7 +857,7 @@ describe('Model', function(){
     it('delete', function(done){
       var model = D('Tag');
       model.delete().then(function(data){
-        assert.equal(model.getLastSql().trim(), "DELETE FROM `meinv_tag`")
+        assert.equal(model.getLastSql().trim(), "DELETE FROM `think_tag`")
         done();
       })
     })
@@ -861,7 +865,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.where({wid: ['>', 10]}).delete().then(function(data){
         //console.log(model.getLastSql())
-        assert.equal(model.getLastSql().trim(), "DELETE FROM `meinv_tag` WHERE ( `wid` > 10 )")
+        assert.equal(model.getLastSql().trim(), "DELETE FROM `think_tag` WHERE ( `wid` > 10 )")
         done();
       })
     })
@@ -895,7 +899,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.update({wid: 10, title: 'www'}).then(function(data){
         //console.log(model.getLastSql())
-        assert.equal(model.getLastSql().trim(), "UPDATE `meinv_tag` SET `title`='www' WHERE ( `wid` = 10 )");
+        assert.equal(model.getLastSql().trim(), "UPDATE `think_tag` SET `title`='www' WHERE ( `wid` = 10 )");
         done(); 
       })
     })
@@ -903,7 +907,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.where({wid: 10}).update({title: 'www'}).then(function(data){
         //console.log(model.getLastSql())
-        assert.equal(model.getLastSql().trim(), "UPDATE `meinv_tag` SET `title`='www' WHERE ( `wid` = 10 )");
+        assert.equal(model.getLastSql().trim(), "UPDATE `think_tag` SET `title`='www' WHERE ( `wid` = 10 )");
         done(); 
       })
     })
@@ -926,7 +930,7 @@ describe('Model', function(){
     it('update all', function(done){
       var model = D('Tag');
       model.updateAll([{wid: 10, title: 'xxx'}]).then(function(data){
-        assert.equal(model.getLastSql().trim(), "UPDATE `meinv_tag` SET `title`='xxx' WHERE ( `wid` = 10 )")
+        assert.equal(model.getLastSql().trim(), "UPDATE `think_tag` SET `title`='xxx' WHERE ( `wid` = 10 )")
         done();
       })
     })
@@ -935,14 +939,14 @@ describe('Model', function(){
     it('update field', function(done){
       var model = D('Tag');
       model.where({wid: 10}).updateField('title', 'welefen').then(function(data){
-        assert.equal(model.getLastSql().trim(), "UPDATE `meinv_tag` SET `title`='welefen' WHERE ( `wid` = 10 )")
+        assert.equal(model.getLastSql().trim(), "UPDATE `think_tag` SET `title`='welefen' WHERE ( `wid` = 10 )")
         done();
       })
     })
     it('update field', function(done){
       var model = D('Tag');
       model.where({wid: 10}).updateField({title: 'welefen'}).then(function(data){
-        assert.equal(model.getLastSql().trim(), "UPDATE `meinv_tag` SET `title`='welefen' WHERE ( `wid` = 10 )")
+        assert.equal(model.getLastSql().trim(), "UPDATE `think_tag` SET `title`='welefen' WHERE ( `wid` = 10 )")
         done();
       })
     })
@@ -951,21 +955,21 @@ describe('Model', function(){
     it('updateInc', function(){
       var model = D('Tag');
       model.where({wid: 10}).updateInc('title').then(function(data){
-        assert.equal(model.getLastSql().trim(), "UPDATE `meinv_tag` SET `title`=title+1 WHERE ( `wid` = 10 )")
+        assert.equal(model.getLastSql().trim(), "UPDATE `think_tag` SET `title`=title+1 WHERE ( `wid` = 10 )")
         done();
       })
     })
     it('updateInc invalid step', function(){
       var model = D('Tag');
       model.where({wid: 10}).updateInc('title', 'fsadf').then(function(data){
-        assert.equal(model.getLastSql().trim(), "UPDATE `meinv_tag` SET `title`=title+1 WHERE ( `wid` = 10 )")
+        assert.equal(model.getLastSql().trim(), "UPDATE `think_tag` SET `title`=title+1 WHERE ( `wid` = 10 )")
         done();
       })
     })
     it('updateInc with step', function(){
       var model = D('Tag');
       model.where({wid: 10}).updateInc('title', 10).then(function(data){
-        assert.equal(model.getLastSql().trim(), "UPDATE `meinv_tag` SET `title`=title+10 WHERE ( `wid` = 10 )")
+        assert.equal(model.getLastSql().trim(), "UPDATE `think_tag` SET `title`=title+10 WHERE ( `wid` = 10 )")
         done();
       })
     })
@@ -974,21 +978,21 @@ describe('Model', function(){
     it('updateDec', function(){
       var model = D('Tag');
       model.where({wid: 10}).updateDec('title').then(function(data){
-        assert.equal(model.getLastSql().trim(), "UPDATE `meinv_tag` SET `title`=title-1 WHERE ( `wid` = 10 )")
+        assert.equal(model.getLastSql().trim(), "UPDATE `think_tag` SET `title`=title-1 WHERE ( `wid` = 10 )")
         done();
       })
     })
     it('updateDec invalid step', function(){
       var model = D('Tag');
       model.where({wid: 10}).updateDec('title', 'fsadf').then(function(data){
-        assert.equal(model.getLastSql().trim(), "UPDATE `meinv_tag` SET `title`=title-1 WHERE ( `wid` = 10 )")
+        assert.equal(model.getLastSql().trim(), "UPDATE `think_tag` SET `title`=title-1 WHERE ( `wid` = 10 )")
         done();
       })
     })
     it('updateDec with step', function(){
       var model = D('Tag');
       model.where({wid: 10}).updateDec('title', 10).then(function(data){
-        assert.equal(model.getLastSql().trim(), "UPDATE `meinv_tag` SET `title`=title-10 WHERE ( `wid` = 10 )")
+        assert.equal(model.getLastSql().trim(), "UPDATE `think_tag` SET `title`=title-10 WHERE ( `wid` = 10 )")
         done();
       })
     })
@@ -1046,7 +1050,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.find().then(function(){
         var sql = model.getLastSql().trim();
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 1")
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 1")
         done();
       })
     })
@@ -1062,7 +1066,7 @@ describe('Model', function(){
       model.select().then(function(){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag`")
+        assert.equal(sql, "SELECT * FROM `think_tag`")
         done()
       })
     })
@@ -1072,7 +1076,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.selectAdd(D('Group').field('id,title')).then(function(){
         var sql = model.getLastSql().trim();
-        assert.equal(sql, "INSERT INTO `meinv_tag` (`wid`,`title`,`cate_id`,`cate_no`) SELECT `id`,`title` FROM `meinv_group`")
+        assert.equal(sql, "INSERT INTO `think_tag` (`wid`,`title`,`cate_id`,`cate_no`) SELECT `id`,`title` FROM `think_group`")
         done();
       })
     })
@@ -1082,7 +1086,7 @@ describe('Model', function(){
       promise.then(function(options){
         model.selectAdd(options).then(function(){
           var sql = model.getLastSql().trim();
-          assert.equal(sql, "INSERT INTO `meinv_tag` (`wid`,`title`,`cate_id`,`cate_no`) SELECT `id`,`title` FROM `meinv_group`")
+          assert.equal(sql, "INSERT INTO `think_tag` (`wid`,`title`,`cate_id`,`cate_no`) SELECT `id`,`title` FROM `think_group`")
           done();
         })
       })
@@ -1093,7 +1097,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.page(1).countSelect().then(function(data){
         var sql = model.getLastSql().trim();
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 0,20");
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 0,20");
         assert.equal(data.count, 100);
         assert.equal(data.total, 5);
         assert.equal(data.num, 20);
@@ -1106,7 +1110,7 @@ describe('Model', function(){
       model.countSelect().then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 0,20");
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 0,20");
         done();
       })
     })
@@ -1115,7 +1119,7 @@ describe('Model', function(){
       model.page(2, 30).countSelect().then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 30,30");
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 30,30");
         done();
       })
     })
@@ -1124,7 +1128,7 @@ describe('Model', function(){
       model.page('ww', 30).countSelect().then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 0,30");
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 0,30");
         done();
       })
     })
@@ -1132,7 +1136,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.page(1).countSelect().then(function(data){
         var sql = model.getLastSql().trim();
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 0,20");
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 0,20");
         delete data.data;
         assert.deepEqual(data, { count: 100, total: 5, page: 1, num: 20 });
         done();
@@ -1143,7 +1147,7 @@ describe('Model', function(){
       model.page(200).countSelect().then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 3980,20");
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 3980,20");
         delete data.data;
         //console.log(data)
         assert.deepEqual(data, { count: 100, total: 5, page: 200, num: 20 });
@@ -1155,7 +1159,7 @@ describe('Model', function(){
       model.page(200).countSelect(true).then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 0,20");
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 0,20");
         delete data.data;
         //console.log(data)
         assert.deepEqual(data, { count: 100, total: 5, page: 1, num: 20 });
@@ -1167,7 +1171,7 @@ describe('Model', function(){
       model.page(200).countSelect(false).then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 80,20");
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 80,20");
         delete data.data;
         //console.log(data)
         assert.deepEqual(data, { count: 100, total: 5, page: 5, num: 20 });
@@ -1179,7 +1183,7 @@ describe('Model', function(){
       model.page(2).countSelect(false).then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 20,20");
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 20,20");
         delete data.data;
         //console.log(data)
         assert.deepEqual(data, { count: 100, total: 5, page: 2, num: 20 });
@@ -1207,7 +1211,7 @@ describe('Model', function(){
       var model = D('Group');
       model.getField('wid', 2).then(function(data){
         var sql = model.getLastSql().trim();
-        assert.equal(sql, "SELECT `wid` FROM `meinv_group` LIMIT 2")
+        assert.equal(sql, "SELECT `wid` FROM `think_group` LIMIT 2")
         //console.log(data);
         assert.deepEqual(data, [7565, 7564])
         done();
@@ -1218,7 +1222,7 @@ describe('Model', function(){
       model.getField('id,cate_id').then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT `id`,`cate_id` FROM `meinv_tag`")
+        assert.equal(sql, "SELECT `id`,`cate_id` FROM `think_tag`")
         //console.log(data);
         assert.deepEqual(data, { id: [ 7565, 7564, 7563, 7562, 7561, 7560, 7559, 7558, 7557 ],cate_id: [ 1, 2, 7, 6, 3, 3, 3, 17, 17 ] })
         done();
@@ -1229,7 +1233,7 @@ describe('Model', function(){
       model.getField('id,cate_id', true).then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT `id`,`cate_id` FROM `meinv_tag` LIMIT 1")
+        assert.equal(sql, "SELECT `id`,`cate_id` FROM `think_tag` LIMIT 1")
         //console.log(data);
         assert.deepEqual(data, { id: 7565, cate_id: 1 })
         done();
@@ -1242,7 +1246,7 @@ describe('Model', function(){
       model.getBy('title', 'xxx').then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql);
-        assert.equal(sql, "SELECT * FROM `meinv_tag` WHERE ( `title` = 'xxx' ) LIMIT 1")
+        assert.equal(sql, "SELECT * FROM `think_tag` WHERE ( `title` = 'xxx' ) LIMIT 1")
         done();
       })
     })
@@ -1252,7 +1256,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.query('SELECT * FROM __TABLE__').then(function(data){
         var sql = model.getLastSql().trim();
-        assert.equal(sql, "SELECT * FROM `meinv_tag`")
+        assert.equal(sql, "SELECT * FROM `think_tag`")
         done()
       })
     })
@@ -1261,7 +1265,7 @@ describe('Model', function(){
       model.query('SELECT * FROM __TABLE__ LIMIT %d,%d', 1, 2).then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 1,2")
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 1,2")
         done()
       })
     })
@@ -1270,7 +1274,7 @@ describe('Model', function(){
       model.query('SELECT * FROM __TABLE__ LIMIT %d,%d', [1, 2]).then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 1,2")
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 1,2")
         done()
       })
     })
@@ -1279,7 +1283,7 @@ describe('Model', function(){
       model.query('SELECT * FROM __USER__').then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_user`")
+        assert.equal(sql, "SELECT * FROM `think_user`")
         done()
       })
     })
@@ -1289,7 +1293,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.execute('SELECT * FROM __TABLE__').then(function(data){
         var sql = model.getLastSql().trim();
-        assert.equal(sql, "SELECT * FROM `meinv_tag`")
+        assert.equal(sql, "SELECT * FROM `think_tag`")
         done()
       })
     })
@@ -1298,7 +1302,7 @@ describe('Model', function(){
       model.execute('SELECT * FROM __TABLE__ LIMIT %d,%d', 1, 2).then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 1,2")
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 1,2")
         done()
       })
     })
@@ -1307,7 +1311,7 @@ describe('Model', function(){
       model.execute('SELECT * FROM __TABLE__ LIMIT %d,%d', [1, 2]).then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_tag` LIMIT 1,2")
+        assert.equal(sql, "SELECT * FROM `think_tag` LIMIT 1,2")
         done()
       })
     })
@@ -1316,7 +1320,7 @@ describe('Model', function(){
       model.execute('SELECT * FROM __USER__').then(function(data){
         var sql = model.getLastSql().trim();
         //console.log(sql)
-        assert.equal(sql, "SELECT * FROM `meinv_user`")
+        assert.equal(sql, "SELECT * FROM `think_user`")
         done()
       })
     })
@@ -1324,8 +1328,8 @@ describe('Model', function(){
   describe('parseSql', function(){
     it('parseSql', function(done){
       var model = D('Tag');
-      var sql = model.parseSql('select * from %s', 'meinv_user');
-      assert.equal(sql, "select * from meinv_user");
+      var sql = model.parseSql('select * from %s', 'think_user');
+      assert.equal(sql, "select * from think_user");
       done();
     })
   })
@@ -1435,7 +1439,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.count().then(function(){
         var sql = model.getLastSql().trim();
-        assert.equal(sql, "SELECT COUNT(id) AS thinkjs_count FROM `meinv_tag` LIMIT 1")
+        assert.equal(sql, "SELECT COUNT(id) AS thinkjs_count FROM `think_tag` LIMIT 1")
         done();
       })
     })
@@ -1443,7 +1447,7 @@ describe('Model', function(){
       var model = D('Tag');
       model.count('wid').then(function(){
         var sql = model.getLastSql().trim();
-        assert.equal(sql, "SELECT COUNT(wid) AS thinkjs_count FROM `meinv_tag` LIMIT 1")
+        assert.equal(sql, "SELECT COUNT(wid) AS thinkjs_count FROM `think_tag` LIMIT 1")
         done();
       })
     })
@@ -1454,7 +1458,7 @@ describe('Model', function(){
       model.where({wid: 100}).setDec('title').then(function(){
         var sql = model.getLastSql().trim();
         //console.log(sql);
-        assert.equal(sql, "UPDATE `meinv_tag` SET `title`=title-1 WHERE ( `wid` = 100 )")
+        assert.equal(sql, "UPDATE `think_tag` SET `title`=title-1 WHERE ( `wid` = 100 )")
         done()
       })
     })
@@ -1466,6 +1470,18 @@ describe('Model', function(){
     })
   })
 
+  describe('child select', function(){
+    it('cate lastest', function(done){
+      var instance = D('Pic1');
+      return instance.order('id DESC').buildSql().then(function(sql){
+        return instance.table(sql, true).alias('tmp').group('group_id').order('id DESC').select().then(function(){
+          var sql = instance.getLastSql().trim();
+          assert.equal(sql, "SELECT * FROM ( SELECT * FROM `think_pic1` ORDER BY id DESC ) AS tmp GROUP BY `group_id` ORDER BY id DESC");
+          done();
+        })
+      })
+    })
+  })
 
 });
 describe('after', function(){

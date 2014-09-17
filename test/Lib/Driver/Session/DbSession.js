@@ -9,30 +9,35 @@ global.RESOURCE_PATH = path.normalize(__dirname + '/../../../www');
 process.execArgv.push('--no-app');
 require(path.normalize(__dirname + '/../../../../index.js'));
 
-var MysqlSocket = thinkRequire('MysqlSocket');
-var DbSession = thinkRequire('DbSession');
+var MysqlSocket;
+var DbSession;
 
 describe('before', function(){
   it('before', function(){
+    MysqlSocket = thinkRequire('MysqlSocket');
+    DbSession = thinkRequire('DbSession')
+
+
     muk(MysqlSocket.prototype, 'query', function(sql){
       sql = sql.trim();
-      if (sql === 'SHOW COLUMNS FROM `meinv_session`') {
+      if (sql === 'SHOW COLUMNS FROM `think_session`') {
         return getPromise([ 
           { Field: 'id',Type: 'int(11) unsigned',Null: 'NO',Key: 'PRI',Default: null,Extra: 'auto_increment' },
           { Field: 'key',Type: 'varchar(255)',Null: 'NO',Key: 'UNI',Default: '',Extra: '' },
           { Field: 'data',Type: 'text',Null: 'YES',Key: '',Default: null,Extra: '' },
           { Field: 'expire',Type: 'bigint(11)',Null: 'NO',Key: 'MUL',Default: null,Extra: '' } 
         ]);
-      }else if (sql === "SELECT * FROM `meinv_session` WHERE ( `key` = 'Nru4DV9uYy3jUP8_MDl4l-wbkVe-gQO_' ) LIMIT 1") {
+      }else if (sql === "SELECT * FROM `think_session` WHERE ( `key` = 'Nru4DV9uYy3jUP8_MDl4l-wbkVe-gQO_' ) LIMIT 1") {
         return getPromise([ { id: 1,key: 'Nru4DV9uYy3jUP8_MDl4l-wbkVe-gQO_',data: '{"name":"suredy"}',expire: 1509896404697 } ])
-      }else if (sql === "SELECT * FROM `meinv_session` WHERE ( `key` = 'expired' ) LIMIT 1") {
+      }else if (sql === "SELECT * FROM `think_session` WHERE ( `key` = 'expired' ) LIMIT 1") {
         return getPromise([ { id: 1,key: 'Nru4DV9uYy3jUP8_MDl4l-wbkVe-gQO_',data: '{"name":"suredy"}',expire: 1309896404697 } ])
-      }else if (sql === "SELECT * FROM `meinv_session` WHERE ( `key` = 'dataempty' ) LIMIT 1") {
+      }else if (sql === "SELECT * FROM `think_session` WHERE ( `key` = 'dataempty' ) LIMIT 1") {
         return getPromise([ { id: 1,key: 'Nru4DV9uYy3jUP8_MDl4l-wbkVe-gQO_',data: '',expire: 1409896404697 } ])
       }
       return getPromise([]);
     })
   })
+
 })
 describe('DbSession', function(){
   it('init', function(){
@@ -46,10 +51,14 @@ describe('DbSession', function(){
     assert.equal(instance.isChanged, false)
   })
   it('initData', function(done){
+
     var instance = DbSession({cookie: 'Nru4DV9uYy3jUP8_MDl4l-wbkVe-gQO_'});
     instance.initData().then(function(data){
+      console.log(instance.data)
       assert.deepEqual(instance.data, {name: 'suredy'})
       done();
+    }).catch(function(err){
+      console.log(err.stack);
     })
   })
   it('initData emtpy data', function(done){
@@ -139,7 +148,7 @@ describe('DbSession', function(){
     }
     instance.flush().then(function(data){
       var sql = instance.model.getLastSql().trim();
-      assert.equal(sql, "UPDATE `meinv_session` SET `expire`=1409859026812 WHERE ( `key` = 'Nru4DV9uYy3jUP8_MDl4l-wbkVe-gQO_' )")
+      assert.equal(sql, "UPDATE `think_session` SET `expire`=1409859026812 WHERE ( `key` = 'Nru4DV9uYy3jUP8_MDl4l-wbkVe-gQO_' )")
       Date.now = now;
       done();
     })
@@ -153,7 +162,7 @@ describe('DbSession', function(){
     instance.isChanged = true;
     instance.flush().then(function(data){
       var sql = instance.model.getLastSql().trim();
-      var s = "UPDATE `meinv_session` SET `expire`=1409880626812,`data`='{\\\"name\\\":\\\"suredy\\\"}' WHERE ( `key` = 'Nru4DV9uYy3jUP8_MDl4l-wbkVe-gQO_' )";
+      var s = "UPDATE `think_session` SET `expire`=1409880626812,`data`='{\\\"name\\\":\\\"suredy\\\"}' WHERE ( `key` = 'Nru4DV9uYy3jUP8_MDl4l-wbkVe-gQO_' )";
       assert.equal(sql, s)
       Date.now = now;
       done();
@@ -164,7 +173,7 @@ describe('DbSession', function(){
     var now = 1409859026812;
     instance.gc(now).then(function(){
       var sql = instance.model.getLastSql().trim();
-      var s = "DELETE FROM `meinv_session` WHERE ( `expire` < 1409859026812 )";
+      var s = "DELETE FROM `think_session` WHERE ( `expire` < 1409859026812 )";
       assert.equal(sql, s)
       done();
     })
