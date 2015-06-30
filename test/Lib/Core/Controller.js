@@ -31,6 +31,9 @@ req.method = 'GET';
 req.httpVersion = '1.1';
 req.url = '/index/index?name=welefen&value=1111';
 var res = new http.ServerResponse(req);
+res.write = function(){
+  return true;
+}
 var instance = Http(req, res).run();
 
 describe('Controller', function(){
@@ -142,6 +145,40 @@ describe('Controller', function(){
       assert.equal(instance.isCli(), false);
       APP_MODE = 'cli';
       done();
+    })
+  })
+  it('token is function', function(done){
+    promise.then(function(instance){
+      assert.equal(typeof instance.token, 'function');
+      done();
+    })
+  })
+  it('token get', function(done){
+    promise.then(function(instance){
+      instance.token().then(function(token){
+        assert.equal(token.length, 32);
+        done();
+      })
+    })
+  })
+  it('token get exist', function(done){
+    promise.then(function(instance){
+      instance.token().then(function(token){
+        instance.token().then(function(t){
+          assert.equal(token, t);
+          done();
+        })
+      })
+    })
+  })
+  it('token get exist', function(done){
+    promise.then(function(instance){
+      instance.token().then(function(token){
+        instance.token(token).then(function(t){
+          assert.equal(true, t);
+          done();
+        })
+      })
     })
   })
 
@@ -326,7 +363,7 @@ describe('Controller', function(){
       var fn = instance.http.res.setHeader;
       instance.http.res.setHeader = function(name, value){
         assert.equal(name, 'Content-Type');
-        assert.equal(value, 'text/html; charset=utf8');
+        assert.equal(value, 'text/html; charset=utf-8');
         done();
         instance.http.res.setHeader = fn;
       }
@@ -585,7 +622,7 @@ describe('Controller', function(){
       var fn = instance.http.res.write;
       instance.http.res.write = function(content, encoding){
         assert.equal(content, 'hello, thinkjs!');
-        assert.equal(encoding, 'utf8');
+        assert.equal(encoding, 'utf-8');
         instance.http.res.write = fn;
         done();
       }
@@ -597,7 +634,7 @@ describe('Controller', function(){
       var fn = instance.http.res.write;
       instance.http.res.write = function(content, encoding){
         assert.equal(content, 'hello, thinkjs!');
-        assert.equal(encoding, 'utf8');
+        assert.equal(encoding, 'utf-8');
         instance.http.res.write = fn;
         done();
       }
@@ -702,7 +739,7 @@ describe('Controller', function(){
       instance.http.cthIsSend = false;
       instance.http.res.setHeader = function(name, value){
         assert.equal(name, 'Content-Type');
-        assert.equal(value, 'application/json; charset=utf8');
+        assert.equal(value, 'application/json; charset=utf-8');
         instance.http.res.setHeader = fn;
         done();
       }
@@ -714,7 +751,7 @@ describe('Controller', function(){
       var fn = instance.http.res.write;
       instance.http.res.write = function(content, encoding){
         assert.equal(content, '{"name":"welefen"}');
-        assert.equal(encoding, 'utf8');
+        assert.equal(encoding, 'utf-8');
         instance.http.res.write = fn;
         done();
       }
@@ -728,7 +765,7 @@ describe('Controller', function(){
       instance.http.res.write = function(content, encoding){
         //console.log(content, encoding)
         assert.equal(content, 'xxxx()');
-        assert.equal(encoding, 'utf8');
+        assert.equal(encoding, 'utf-8');
         instance.http.res.write = fn;
         delete instance.http.get.callback;
         done();
@@ -743,7 +780,7 @@ describe('Controller', function(){
       instance.http.res.write = function(content, encoding){
         //console.log(content, encoding)
         assert.equal(content, 'xxxx({"name":"welefen"})');
-        //assert.equal(encoding, 'utf8');
+        //assert.equal(encoding, 'utf-8');
         instance.http.res.write = fn;
         delete instance.http.get.callback;
         done();
@@ -758,7 +795,7 @@ describe('Controller', function(){
       instance.http.res.write = function(content, encoding){
         //console.log(content, encoding)
         assert.equal(content, 'xxxx({"name":"welefen"})');
-        //assert.equal(encoding, 'utf8');
+        //assert.equal(encoding, 'utf-8');
         instance.http.res.write = fn;
         delete instance.http.get.callback;
         done();
@@ -773,7 +810,7 @@ describe('Controller', function(){
       instance.http.res.write = function(content, encoding){
         //console.log(content, encoding)
         assert.equal(content, '{"name":"welefen"}');
-        //assert.equal(encoding, 'utf8');
+        //assert.equal(encoding, 'utf-8');
         instance.http.res.write = fn;
         delete instance.http.get.callback;
         done();
@@ -791,7 +828,7 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         //console.log(name, value)
         assert.equal(name, 'Content-Type');
-        assert.equal(value, 'application/json; charset=utf8');
+        assert.equal(value, 'application/json; charset=utf-8');
         instance.http.res.setHeader = fn;
         done();
       }
@@ -804,7 +841,7 @@ describe('Controller', function(){
       instance.http.res.write = function(content, encoding){
         //console.log(content, encoding)
         assert.equal(content, '{"name":"welefen"}');
-        assert.equal(encoding, 'utf8');
+        assert.equal(encoding, 'utf-8');
         instance.http.res.write = fn;
         done();
       }
@@ -875,7 +912,7 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         //console.log(name, value)
         assert.equal(name, 'Content-Type');
-        assert.equal(value, 'text/html; charset=utf8');
+        assert.equal(value, 'text/html; charset=utf-8');
         instance.http.res.setHeader = fn;
         done();
       }
@@ -890,7 +927,7 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         //console.log(name, value)
         assert.equal(name, 'Content-Type');
-        assert.equal(value, 'text/html; charset=utf8');
+        assert.equal(value, 'text/html; charset=utf-8');
         instance.http.res.setHeader = fn;
         done();
       }
@@ -905,7 +942,7 @@ describe('Controller', function(){
       instance.http.res.write = function(content, encoding){
         //console.log(content, encoding)
         assert.equal(content, 'name');
-        //assert.equal(value, 'text/html; charset=utf8');
+        //assert.equal(value, 'text/html; charset=utf-8');
         instance.http.res.write = fn;
         done();
       }
@@ -920,7 +957,7 @@ describe('Controller', function(){
       instance.http.res.write = function(content, encoding){
         //console.log(content, encoding)
         assert.equal(content, '{"name":"welefen"}');
-        //assert.equal(value, 'text/html; charset=utf8');
+        //assert.equal(value, 'text/html; charset=utf-8');
         instance.http.res.write = fn;
         done();
       }
@@ -935,7 +972,7 @@ describe('Controller', function(){
       instance.http.res.write = function(content, encoding){
         //console.log(content, encoding)
         assert.equal(content, '["name","welefen"]');
-        //assert.equal(value, 'text/html; charset=utf8');
+        //assert.equal(value, 'text/html; charset=utf-8');
         instance.http.res.write = fn;
         done();
       }
@@ -950,7 +987,7 @@ describe('Controller', function(){
       instance.http.res.write = function(content, encoding){
         //console.log(content, encoding)
         assert.equal(isBuffer(content), true);
-        //assert.equal(value, 'text/html; charset=utf8');
+        //assert.equal(value, 'text/html; charset=utf-8');
         instance.http.res.write = fn;
         done();
       }
@@ -965,7 +1002,7 @@ describe('Controller', function(){
       instance.http.res.write = function(content, encoding){
         //console.log(content, encoding)
         assert.equal(isBuffer(content), true);
-        //assert.equal(value, 'text/html; charset=utf8');
+        //assert.equal(value, 'text/html; charset=utf-8');
         instance.http.res.write = fn;
         C('auto_send_content_type', true)
         done();
@@ -1000,7 +1037,7 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         assert.equal(name, 'Content-Type');
         //console.log(value)
-        assert.equal(value, 'application/javascript; charset=utf8');
+        assert.equal(value, 'application/javascript; charset=utf-8');
         instance.http.res.setHeader = fn;
         done();
       }
@@ -1015,7 +1052,7 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         //console.log(value)
         assert.equal(name, 'Content-Type');
-        assert.equal(value, 'image/png; charset=utf8');
+        assert.equal(value, 'image/png; charset=utf-8');
         instance.http.res.setHeader = fn;
         done();
       }
@@ -1030,7 +1067,7 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         //console.log(value)
         assert.equal(name, 'Content-Type');
-        assert.equal(value, 'name/test; charset=utf8');
+        assert.equal(value, 'name/test; charset=utf-8');
         instance.http.res.setHeader = fn;
         done();
       }
@@ -1045,7 +1082,7 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         //console.log(value)
         assert.equal(name, 'Content-Type');
-        assert.equal(value, 'application/octet-stream; charset=utf8');
+        assert.equal(value, 'application/octet-stream; charset=utf-8');
         instance.http.res.setHeader = fn;
         done();
       }
@@ -1060,11 +1097,11 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         //console.log(value)
         assert.equal(name, 'Content-Type');
-        assert.equal(value, 'text/html; charset=utf8');
+        assert.equal(value, 'text/html; charset=utf-8');
         instance.http.res.setHeader = fn;
         done();
       }
-      instance.type('text/html; charset=utf8');
+      instance.type('text/html; charset=utf-8');
     })
   })
 
@@ -1077,7 +1114,7 @@ describe('Controller', function(){
       instance.http.cthIsSend = false;
       instance.http.res.setHeader = function(name, value){
         if (name === 'Content-Type') {
-          assert.equal(value, 'application/javascript; charset=utf8');
+          assert.equal(value, 'application/javascript; charset=utf-8');
         };
         if (name === 'Content-Disposition') {
           assert.equal(value, 'attachment; filename="Controller.js"');
@@ -1096,7 +1133,7 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         if (name === 'Content-Type') {
           //console.log(value)
-          assert.equal(value, 'image/png; charset=utf8');
+          assert.equal(value, 'image/png; charset=utf-8');
         };
         if (name === 'Content-Disposition') {
           assert.equal(value, 'attachment; filename="Controller.js"');
@@ -1115,7 +1152,7 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         if (name === 'Content-Type') {
           //console.log(value)
-          assert.equal(value, 'png/xxx; charset=utf8');
+          assert.equal(value, 'png/xxx; charset=utf-8');
         };
         if (name === 'Content-Disposition') {
           assert.equal(value, 'attachment; filename="Controller.js"');
@@ -1134,7 +1171,7 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         if (name === 'Content-Type') {
           //console.log(value)
-          assert.equal(value, 'application/javascript; charset=utf8');
+          assert.equal(value, 'application/javascript; charset=utf-8');
         };
         if (name === 'Content-Disposition') {
           //console.log(value)
@@ -1154,7 +1191,7 @@ describe('Controller', function(){
       instance.http.res.setHeader = function(name, value){
         if (name === 'Content-Type') {
           //console.log(value)
-          assert.equal(value, 'image/png; charset=utf8');
+          assert.equal(value, 'image/png; charset=utf-8');
         };
         if (name === 'Content-Disposition') {
           //console.log(value)
@@ -1190,6 +1227,18 @@ describe('Controller', function(){
         done();
       }
       instance.success({name: "welefen"});
+    })
+  })
+  it('instance.success(data, message)', function(done){
+    promise.then(function(instance){
+      var fn = instance.http.res.write;
+      instance.http.res.write = function(name, value){
+        //console.log(name)
+        assert.equal(name, '{"errno":0,"errmsg":"message","data":{"name":"welefen"}}');
+        instance.http.res.write = fn;
+        done();
+      }
+      instance.success({name: "welefen"}, 'message');
     })
   })
   it('instance.error()', function(done){

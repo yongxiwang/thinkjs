@@ -34,46 +34,49 @@ res.write = function(){
 }
 var instance = Http(req, res).run();
 
-describe('DenyIpBehavior', function(){
-  var httpInstance = null;
-  var promise = function(){
+describe('TokenBehavior', function(){
+  var httpInstance;
+  function getTestPromise(obj, content){
     return instance.then(function(http){
+      obj = obj || {};
+      for(var name in obj){
+        http[name] = obj[name];
+      }
       httpInstance = http;
-      return B('DenyIp', http);
+      return B('Token', http, content);
     })
   }
-  it('empty', function(done){
-    C('deny_ip', []);
-    promise().then(function(data){
-      assert.equal(data, true)
+  it('token', function(done){
+    getTestPromise({}, 'welefen').then(function(content){
+      assert.equal(content, 'welefen');
       done();
     })
   })
-  it('local ip', function(done){
-    C('deny_ip', ['127.0.0.100']);
-    promise().then(function(data){
-      assert.equal(data, true)
+  it('token on, no replace', function(done){
+    C('token_on', true);
+    getTestPromise({}, 'welefen').then(function(content){
+      assert.equal(content, 'welefen');
       done();
     })
   })
-  it('local ip hit', function(done){
-    C('deny_ip', ['127.0.0.1']);
-    httpInstance.res.end = function(){
+  it('token on, __TOKEN__', function(done){
+    C('token_on', true);
+    getTestPromise({}, 'welefen{__TOKEN__}').then(function(content){
+      assert.equal(content.length, 39);
       done();
-    }
-    promise();
+    })
   })
-  it('local ip star', function(done){
-    C('deny_ip', ['127.0.*']);
-    httpInstance.res.end = function(){
+  it('token on, </form>', function(done){
+    C('token_on', true);
+    getTestPromise({}, 'welefen</form>').then(function(content){
+      assert.equal(content.indexOf('<input type="hidden" name="token"') > -1, true);
       done();
-    }
-    promise();
+    })
   })
-  it('local ip star, not hit', function(done){
-    C('deny_ip', ['127.1.*']);
-    promise().then(function(data){
-      assert.equal(data, true);
+  it('token on, </head>', function(done){
+    C('token_on', true);
+    getTestPromise({}, 'welefen</head>').then(function(content){
+      assert.equal(content.indexOf('<meta name="token"') > -1, true);
       done();
     })
   })

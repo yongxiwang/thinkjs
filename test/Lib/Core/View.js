@@ -31,6 +31,9 @@ req.method = 'GET';
 req.httpVersion = '1.1';
 req.url = '/index/index?name=welefen&value=1111';
 var res = new http.ServerResponse(req);
+res.write = function(){
+  return true;
+}
 var instance = Http(req, res).run();
 
 
@@ -85,7 +88,7 @@ describe('View', function(){
       promise.then(function(instance){
         return instance.fetch();
       }).catch(function(err){
-        assert.equal(err.message, "can't find template file")
+        assert.equal(err.message.indexOf("can't find template file") > -1, true)
         done();
       })
     })
@@ -115,6 +118,52 @@ describe('View', function(){
         done();
       })
     })
+    it('fetch file, with variable', function(done){
+
+      var filepath = path.normalize(__dirname + '/../../App/View/Home/index_index.html');
+      mkdir(path.dirname(filepath));
+      fs.writeFileSync(filepath, '<%-name%>')
+
+      promise.then(function(instance){
+        instance.assign('name', 'welefen')
+        return instance.fetch(filepath);
+      }).then(function(content){
+        assert.equal(content, "welefen");
+        done();
+      })
+    })
+    it('fetch file, with promise variable', function(done){
+
+      var filepath = path.normalize(__dirname + '/../../App/View/Home/index_index.html');
+      mkdir(path.dirname(filepath));
+      fs.writeFileSync(filepath, '<%-name%>')
+
+      promise.then(function(instance){
+        instance.assign('name', getPromise('welefen'))
+        return instance.fetch(filepath);
+      }).then(function(content){
+        assert.equal(content, "welefen");
+        done();
+      })
+    })
+    it('fetch file, with promise variable', function(done){
+
+      var filepath = path.normalize(__dirname + '/../../App/View/Home/index_index.html');
+      mkdir(path.dirname(filepath));
+      fs.writeFileSync(filepath, '<%-name%><%-name2%>')
+
+      promise.then(function(instance){
+        instance.assign('name', getPromise('welefen'));
+        var p1 = getPromise().then(function(){
+          instance.assign('name2', 'welefen333');
+        })
+        instance.assign('name1', p1)
+        return instance.fetch(filepath);
+      }).then(function(content){
+        assert.equal(content, "welefenwelefen333");
+        done();
+      })
+    })
     it('fetch file, without view Path', function(done){
 
       var filepath = path.normalize(__dirname + '/../../App/View/Home/index_index.html');
@@ -137,7 +186,7 @@ describe('View', function(){
         var fn = httpInstance.res.setHeader;
         httpInstance.res.setHeader = function(name, value){
           if (name === 'Content-Type') {
-            assert.equal(value, 'text/html; charset=utf8')
+            assert.equal(value, 'text/html; charset=utf-8')
           };
            httpInstance.res.setHeader = fn;
           done();

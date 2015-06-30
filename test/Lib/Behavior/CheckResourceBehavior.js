@@ -29,6 +29,9 @@ req.method = 'GET';
 req.httpVersion = '1.1';
 req.url = '/index/index/name/welefen?test=welefen&value=1111';
 var res = new http.ServerResponse(req);
+res.write = function(){
+  return true;
+}
 var instance = Http(req, res).run();
 
 describe('CheckResourceBehavior', function(){
@@ -59,7 +62,7 @@ describe('CheckResourceBehavior', function(){
     var fn1 = res.setHeader;
     res.setHeader = function(name, value){
       if (name === 'Content-Type') {
-        assert.strictEqual(value, 'application/javascript; charset=utf8');
+        assert.strictEqual(value, 'application/javascript; charset=utf-8');
       };
       res.setHeader = fn1;
     }
@@ -79,7 +82,7 @@ describe('CheckResourceBehavior', function(){
     var fn1 = res.setHeader;
     res.setHeader = function(name, value){
       if (name === 'Content-Type') {
-        assert.strictEqual(value, 'application/javascript; charset=utf8');
+        assert.strictEqual(value, 'application/javascript; charset=utf-8');
       };
       res.setHeader = fn1;
     }
@@ -99,7 +102,7 @@ describe('CheckResourceBehavior', function(){
     var fn1 = res.setHeader;
     res.setHeader = function(name, value){
       if (name === 'Content-Type') {
-        assert.strictEqual(value, 'text/css; charset=utf8');
+        assert.strictEqual(value, 'text/css; charset=utf-8');
       };
       res.setHeader = fn1;
     }

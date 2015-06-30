@@ -33,7 +33,7 @@ describe('App', function(){
     var filepath = path.normalize(LIB_PATH +　'/Controller/Home/IndexController.js');
     mkdir(path.dirname(filepath));
     fs.writeFileSync(filepath, 'module.exports = Controller({indexAction: function(){}})')
-    var c = App.getBaseController({group: 'Home', controller: 'index', action: 'index'});
+    var c = App.getBaseController({group: 'Home', controller: 'Index', action: 'index'});
     assert.equal(isObject(c), true);
     rmdir(path.normalize(__dirname + '/../../App')).then(done)
   })
@@ -158,16 +158,43 @@ describe('App', function(){
     assert.deepEqual(data, ['', ''])
   })
   it('exec, controller not exist', function(done){
-    var http = {group: 'home', controller: 'test', action: 'index', pathname: '/test'}
+    APP_DEBUG = true;
+    var http = {group: 'home', controller: 'test111', action: 'index', pathname: '/test'}
     App.exec(http).catch(function(err){
-      assert.equal(err.message, "Controller `test` not found. pathname is `/test`");
+      console.log(err.message)
+      assert.equal(err.message, "Controller `test111` not found. pathname is `/test`");
+      APP_DEBUG = false;
       done();
     })
   })
   it('exec, controller not exist', function(done){
-    var http = {group: 'home', action: 'index', pathname: '/test'}
+    var http = {group: 'home', action: 'index', pathname: '/test'};
+    APP_DEBUG = true;
     App.exec(http).catch(function(err){
       assert.equal(err.message, "Controller not found. pathname is `/test`");
+      APP_DEBUG = false;
+      done();
+    })
+  })
+  it('exec, __call exist, _404 not exist', function(){
+    var filepath = path.normalize(LIB_PATH +　'/Controller/Home/IndexController.js');
+    mkdir(path.dirname(filepath));
+    fs.writeFileSync(filepath, 'module.exports = Controller({__call: function(){return "__call"}})')
+    var http = {group: 'Home', controller:'Index', action: 'test', pathname: '/testddd', post: {}, get: {}}
+    APP_DEBUG = true;
+    App.exec(http).catch(function(err){
+      assert.equal(err.message, "action not found. pathname is `/testddd`");
+      APP_DEBUG = false;
+      done();
+    })
+  })
+  it('exec, action not exist', function(){
+    var filepath = path.normalize(LIB_PATH +　'/Controller/Home/IndexController.js');
+    mkdir(path.dirname(filepath));
+    fs.writeFileSync(filepath, 'module.exports = Controller({__after: function(){return "__after"}})')
+    var http = {group: 'Home', controller:'Index', action: 'test', pathname: '/test', post: {}, get: {}}
+    App.exec(http).catch(function(err){
+      assert.equal(err.message, "action not found. pathname is `/test`");
       done();
     })
   })
@@ -226,7 +253,7 @@ describe('App', function(){
   })
   it('sendError', function(){
     APP_DEBUG = true;
-    var http = {res: {statusCode: 200, end: function(errormessage){
+    var http = {echo: function(){return getPromise('errormessage')}, end: function(){},res: {statusCode: 200, end: function(errormessage){
       assert.equal(errormessage, 'errormessage')
     }}, setHeader: function(){}}
     App.sendError(http, 'errormessage'); 
@@ -234,16 +261,16 @@ describe('App', function(){
   it('sendError', function(){
     APP_DEBUG = false;
     var fn = function(){};
-    var http = {res: {on: fn,once: fn, emit: fn, write: fn, statusCode: 200, end: function(errormessage){
+    var http = {echo: function(){}, end: function(){},res: {on: fn,once: fn, emit: fn, write: fn, statusCode: 200, end: function(errormessage){
       assert.equal(errormessage, undefined)
     }}, setHeader: function(){}}
     App.sendError(http, 'errormessage'); 
   })
   it('run', function(){
-    App.run();
-    APP_MODE = '';
-    App.run();
-    APP_MODE = 'cli';
+    // App.run();
+    // APP_MODE = '';
+    // App.run();
+    // APP_MODE = 'cli';
   })
 
   it('listener', function(done){

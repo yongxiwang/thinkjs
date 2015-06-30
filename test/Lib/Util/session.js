@@ -27,6 +27,9 @@ req.method = 'GET';
 req.httpVersion = '1.1';
 req.url = '/index/index?name=welefen&value=1111';
 var res = new http.ServerResponse(req);
+res.write = function(){
+  return true;
+}
 var instance = Http(req, res).run();
 var Session = thinkRequire('Session');
 var cookieName = C('session_name');
@@ -38,6 +41,10 @@ describe('Session', function(){
       assert.equal(http.cookie[cookieName].length, 32)
       done();
     })
+  })
+  it('session.uid', function(){
+    var uid = Session.uid;
+    assert.equal(typeof uid, 'function');
   })
   it('Session start sign', function(done){
     instance.then(function(http){

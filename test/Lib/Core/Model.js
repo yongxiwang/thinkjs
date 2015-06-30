@@ -20,6 +20,7 @@ var clearRequireCache = function(){
 
 describe('before', function(){
   it('before', function(){
+    var tagCacheKeyNum = 1;
     muk(MysqlSocket.prototype, 'query', function(sql){
       if (sql === 'SHOW COLUMNS FROM `think_friend`') {
         var data = [
@@ -80,7 +81,10 @@ describe('before', function(){
           {"id":7565,"title":"米兰达·可儿干练服装写真大片","cate_id":1,"cate_no":0},
           {"id":7564,"title":"[Beautyleg]2014.05.21 No.977 Cindy","cate_id":2,"cate_no":977}
         ])
-      };
+      }else if(sql.trim() === 'SELECT * FROM `think_cache_tbl`'){
+        ++tagCacheKeyNum;
+        return getPromise(['cache1', 'cache2', tagCacheKeyNum]);
+      }
       var data = [
         {"id":7565,"title":"米兰达·可儿干练服装写真大片","cate_id":1,"cate_no":0},
         {"id":7564,"title":"[Beautyleg]2014.05.21 No.977 Cindy","cate_id":2,"cate_no":977},
@@ -121,7 +125,7 @@ describe('Model', function(){
     it('configKey', function(){
       var db = model.initDb();
       assert.equal(db !== null, true);
-      assert.equal(model.configKey, '9d4568c009d203ab10e33ea9953a0264');
+      assert.equal(model.configKey, '99914b932bd37a50b983c5e7c90ae93b');
     })
   })
 
@@ -145,6 +149,9 @@ describe('Model', function(){
     it('getTableName', function(){
       assert.equal(model.getTableName(), 'think_group');
       assert.equal(model.getTableName(), 'think_group');
+    })
+    it('getTableName, no model', function(){
+      assert.equal(D().getTableName(), 'think_');
     })
     it('getTableName 1', function(){
       var model = D('Group');
@@ -322,6 +329,46 @@ describe('Model', function(){
       var model = D('Tag');
       model.cache({key: 'welefen', timeout: 100});
       assert.deepEqual(model, model.cache({key: 'welefen', timeout: 100}));
+    })
+    it('cache data, same key', function(done){
+      var model = D('CacheTbl');
+      model.cache('tagCacheKey').select().then(function(data){
+        var sql = model.getLastSql().trim();
+        assert.equal(sql, 'SELECT * FROM `think_cache_tbl`');
+        assert.deepEqual(data, [ 'cache1', 'cache2', 2 ]);
+        process.nextTick(function(){
+          model.cache('tagCacheKey').select().then(function(data){
+            assert.deepEqual(data, [ 'cache1', 'cache2', 2 ]);
+            done();
+          })
+        })
+      })
+    })
+    it('cache data, diffrent key', function(done){
+      var model = D('CacheTbl');
+      model.cache('tagCacheKey1').select().then(function(data){
+        var sql = model.getLastSql().trim();
+        assert.equal(sql, 'SELECT * FROM `think_cache_tbl`');
+        assert.deepEqual(data, [ 'cache1', 'cache2', 3 ]);
+        process.nextTick(function(){
+          model.cache('tagCacheKey2').select().then(function(data){
+            assert.deepEqual(data, [ 'cache1', 'cache2', 4 ]);
+            done();
+          })
+        })
+      })
+    })
+    it('cache data, diffrent key', function(done){
+      var model = D('CacheTbl');
+      model.cache('tagCacheKey3').select().then(function(data){
+        var sql = model.getLastSql().trim();
+        assert.equal(sql, 'SELECT * FROM `think_cache_tbl`');
+        assert.deepEqual(data, [ 'cache1', 'cache2', 5 ]);
+        S('tagCacheKey3', undefined, true).then(function(data){
+          assert.deepEqual(data, [ 'cache1', 'cache2', 5 ]);
+          done();
+        })
+      })
     })
   })
 
@@ -1190,6 +1237,26 @@ describe('Model', function(){
         done();
       })
     })
+    it('countSelect with group', function(done){
+      var model = D('Tag');
+      model.page(2).group('name').countSelect(false).then(function(data){
+        var sql = model.getLastSql().trim();
+        assert.equal(sql, "SELECT * FROM `think_tag` GROUP BY `name` LIMIT 20,20");
+        delete data.data;
+        assert.deepEqual(data, { count: 7565, total: 379, page: 2, num: 20 });
+        done();
+      })
+    })
+    it('countSelect with table', function(done){
+      var model = D('Tag');
+      return model.order('id DESC').buildSql().then(function(sql){
+        model.page(2).table(sql, true).alias('tmp').countSelect(false).then(function(data){
+          var sql = model.getLastSql().trim();
+          assert.equal(sql, 'SELECT * FROM ( SELECT * FROM `think_tag` ORDER BY id DESC ) AS tmp AS tmp LIMIT 20,20');
+          done();
+        })
+      })
+    })
   })
 
   describe('getField', function(){
@@ -1477,6 +1544,30 @@ describe('Model', function(){
         return instance.table(sql, true).alias('tmp').group('group_id').order('id DESC').select().then(function(){
           var sql = instance.getLastSql().trim();
           assert.equal(sql, "SELECT * FROM ( SELECT * FROM `think_pic1` ORDER BY id DESC ) AS tmp GROUP BY `group_id` ORDER BY id DESC");
+          done();
+        })
+      })
+    })
+  })
+  describe('child select & limit ', function(){
+    it('cate lastest', function(done){
+      var instance = D('Pic1');
+      return instance.order('id DESC').buildSql().then(function(sql){
+        return instance.table(sql, true).alias('tmp').group('group_id').limit(20).order('id DESC').select().then(function(){
+          var sql = instance.getLastSql().trim();
+          assert.equal(sql, "SELECT * FROM ( SELECT * FROM `think_pic1` ORDER BY id DESC ) AS tmp GROUP BY `group_id` ORDER BY id DESC LIMIT 20");
+          done();
+        })
+      })
+    })
+  })
+  describe('child select & page ', function(){
+    it('cate lastest', function(done){
+      var instance = D('Pic1');
+      return instance.order('id DESC').buildSql().then(function(sql){
+        return instance.table(sql, true).alias('tmp').group('group_id').page(20).order('id DESC').select().then(function(){
+          var sql = instance.getLastSql().trim();
+          assert.equal(sql, "SELECT * FROM ( SELECT * FROM `think_pic1` ORDER BY id DESC ) AS tmp GROUP BY `group_id` ORDER BY id DESC LIMIT 380,20");
           done();
         })
       })
