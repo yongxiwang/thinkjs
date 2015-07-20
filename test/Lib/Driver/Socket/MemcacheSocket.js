@@ -27,6 +27,14 @@ Connection.prototype = {
   write: function(cmd) {
     if (cmd == 'set var1 0 0 3\r\n111\r\n') {
       this.events.data.call(this, 'STORED\r\n');
+    }else if (cmd == 'add var1 0 0 3\r\n111\r\n') {
+      this.events.data.call(this, 'ADD\r\n');
+    }else if (cmd == 'replace var1 0 0 3\r\n111\r\n') {
+      this.events.data.call(this, 'REPLACE\r\n');
+    }else if (cmd == 'append var1 0 0 3\r\n111\r\n') {
+      this.events.data.call(this, 'APPEND\r\n');
+    }else if (cmd == 'prepend var1 0 0 3\r\n111\r\n') {
+      this.events.data.call(this, 'PREPEND\r\n');
     } else if (cmd == 'get var1\r\n') {
       this.events.data.call(this, 'VALUE var1 0 3\r\n111\r\nEND\r\n');
     } else if(cmd == 'delete var1\r\n') {
@@ -75,12 +83,12 @@ describe('MemcacheSocket', function(){
     it('default setting', function(){
       var socket = MemcacheSocket();
       assert.equal(socket.port, 11211);
-      assert.equal(socket.hostname, 'localhost');
+      assert.equal(socket.host, 'localhost');
     })
-    it('set hostname & port', function() {
+    it('set host & port', function() {
       var socket = MemcacheSocket(8989, '127.0.0.1');
       assert.equal(socket.port, 8989);
-      assert.equal(socket.hostname, '127.0.0.1');
+      assert.equal(socket.host, '127.0.0.1');
     })
   })
   
@@ -230,25 +238,25 @@ describe('MemcacheSocket', function(){
     })
     it('add', function(done) {
       socket.add('var1', 111, '0', '0').then(function(value) {
-        assert.equal(value, 'STORED');
+        assert.equal(value, 'ADD');
         done();
       })
     })
     it('replace', function(done) {
       socket.replace('var1', 111, '0', '0').then(function(value) {
-        assert.equal(value, 'STORED');
+        assert.equal(value, 'REPLACE');
         done();
       })
     })
     it('append', function(done) {
       socket.append('var1', 111, '0', '0').then(function(value) {
-        assert.equal(value, 'STORED');
+        assert.equal(value, 'APPEND');
         done();
       })
     })
     it('prepend', function(done) {
       socket.prepend('var1', 111, '0', '0').then(function(value) {
-        assert.equal(value, 'STORED');
+        assert.equal(value, 'PREPEND');
         done();
       })
     })
